@@ -1,0 +1,2 @@
+Main-Class: tm.mao.cbf.CleanBackupFolders
+Class-Path: . /usr/share/java/jcifs.jar /usr/share/java/log4j-1.2.jar

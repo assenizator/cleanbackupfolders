@@ -1,0 +1,33 @@
+#
+# Конфигуратор чистки бэкапов
+#
+
+# Продуктивная система SAP
+Backup=HANA-ERP_FULL
+Description=Полные бэкапы продуктивной системы
+Type=Folder
+Server=172.16.0.23/Backup_file
+Folder=DB/hana/hana-erp/full
+Days=30
+Weeks=4
+Monthes=4
+Years=3
+MasterDay=5
+
+# Тестовая система SAP
+Backup=HANA-EQA_FULL
+Description=Полные бэкапы системы качества
+Type=Folder
+Server=172.16.0.23/Backup_file
+Folder=DB/hana/hana-eqa/full
+Depth=7
+
+# Система разработки SAP
+Backup=HANA-EDEV_FULL
+Description=Полные бэкапы системы разработки
+Type=Folder
+Server=172.16.0.23/Backup_file
+Folder=DB/hana/hana-edev/full
+Depth=7
+
+
