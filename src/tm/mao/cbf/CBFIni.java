@@ -34,8 +34,8 @@ public class CBFIni {
 					i++;
 					matchParam = patternParam.matcher(line); // Выуживаем имя параметра
 //					matchValue = patternValue.matcher(line); // Выуживаем значение параметра
-					if (matchParam.matches("Backup")) {
-						sectionData.get(sectionData.size()-1).line.substring(matchParam.begin(),matchParam.end()) = line.substring(matchParam.end()+1);
+					if (matchParam.matches()) {
+						sectionData.get(sectionData.size()-1).class.line.substring(matchParam.begin(),matchParam.end()) = line.substring(matchParam.end()+1);
 					}
 				} else {
 					checkSection = false;
@@ -45,6 +45,25 @@ public class CBFIni {
 		} catch (IOException e) {
 		}
         }
+
+	Map<String, MethodHandle> setters = getSetters(SectionFields.class);
+	SectionFields obj = new SectionFields();
+	setters.get("backup").invoke(obj, "hello world");
+
+	private static Map<String, MethodHandle> getSetters(Class<?> type) throws Exception {
+		Map<String, MethodHandle> setters = new HashMap<>();
+		while (type != null) {
+			for (Field field : type.getDeclaredFields()) {
+				field.setAccessible(true);
+				setters.put(field.getName(), MethodHandles
+									.lookup()
+									.unreflectSetter(field));
+			}
+			type = type.getSuperclass();
+		}
+
+		return setters;
+	}
 
 	public class SectionFields {
 		/*
