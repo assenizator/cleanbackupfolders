@@ -1,14 +1,27 @@
 /*
 * Чтение всех значений всех секций в список массивов
 *
-*
+* # Продуктивная система SAP
+* Backup=HANA-ERP_FULL
+* Description=Полные бэкапы продуктивной системы
+* Type=Folder
+* Server=172.16.0.23/Backup_file
+* Folder=DB/hana/hana-erp/full
+* Days=30
+* Weeks=4
+* Monthes=4
+* Years=3
+* MasterDay=5
 */
 
 package tm.mao.cbf;
 import java.io.*;
 import java.util.*;
+import java.lang.invoke.*;
+import java.lang.reflect.*;
 import java.nio.file.*;
 import java.util.regex.*;
+import org.apache.log4j.*;
 
 public class CBFIni {
 
@@ -16,6 +29,9 @@ public class CBFIni {
 	Pattern patternParam = Pattern.compile("^[A-Za-z_0-9]+");
 //	Pattern patternValue = Pattern.compile("[A-Za-z_0-9.\\/]+$");
 	Matcher matchParam, matchValue;
+	Map<String, MethodHandle> setters;
+	SectionFields obj;
+        private static Logger log = Logger.getLogger(CBFIni.class.getName());
 
         public CBFIni() {
 
@@ -29,26 +45,28 @@ public class CBFIni {
 				if (line.length() > 0 && line.charAt(0) != '#') {
 					if (!checkSection) {
 						checkSection = true; // Отметка, что начались параметры секции
-						sectionData.add(new SectionFields()); // Создаем новый элемент-объект списка
+						obj = new SectionFields();
+						sectionData.add(obj); // Создаем новый элемент-объект списка
 					}
 					i++;
 					matchParam = patternParam.matcher(line); // Выуживаем имя параметра
 //					matchValue = patternValue.matcher(line); // Выуживаем значение параметра
-					if (matchParam.matches()) {
-						sectionData.get(sectionData.size()-1).class.line.substring(matchParam.begin(),matchParam.end()) = line.substring(matchParam.end()+1);
+					log.debug("line = " + line);
+					if (matchParam.lookingAt()) {
+						setters = getSetters(SectionFields.class); //
+//						obj = new SectionFields();
+						setters.get(line.substring(matchParam.start(),matchParam.end()).toLowerCase()).invoke(obj, line.substring(matchParam.end()+1));
+						log.debug("Вырезание из line = " + line.substring(matchParam.start(),matchParam.end()).toLowerCase());
 					}
 				} else {
 					checkSection = false;
 					i = -1;
 				}
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
+		} catch (Throwable e) {
 		}
         }
-
-	Map<String, MethodHandle> setters = getSetters(SectionFields.class);
-	SectionFields obj = new SectionFields();
-	setters.get("backup").invoke(obj, "hello world");
 
 	private static Map<String, MethodHandle> getSetters(Class<?> type) throws Exception {
 		Map<String, MethodHandle> setters = new HashMap<>();
@@ -58,6 +76,7 @@ public class CBFIni {
 				setters.put(field.getName(), MethodHandles
 									.lookup()
 									.unreflectSetter(field));
+				log.debug("field.getName() = " + field.getName());
 			}
 			type = type.getSuperclass();
 		}
@@ -66,22 +85,8 @@ public class CBFIni {
 	}
 
 	public class SectionFields {
-		/*
-		# Продуктивная система SAP
-		Backup=HANA-ERP_FULL
-		Description=Полные бэкапы продуктивной системы
-		Type=Folder
-		Server=172.16.0.23/Backup_file
-		Folder=DB/hana/hana-erp/full
-		Days=30
-		Weeks=4
-		Monthes=4
-		Years=3
-		MasterDay=5
-		*/
 		
-		String backup, description, type, server, folder;
-		int days, weeks, monthes, years, masterDay;
+		String backup, description, type, server, folder, days, weeks, monthes, years, masterDay;
 	}
 
 }
