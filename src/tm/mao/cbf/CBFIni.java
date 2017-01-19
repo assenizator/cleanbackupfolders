@@ -55,8 +55,7 @@ public class CBFIni {
 					if (matchParam.lookingAt()) {
 						setters = getSetters(SectionFields.class); //
 //						obj = new SectionFields();
-						setters.get(line.substring(matchParam.start(),matchParam.end()).toLowerCase()).invoke(obj, line.substring(matchParam.end()+1)); // находит поле и заполняет его значением 
-						log.debug("Вырезание из line = " + line.substring(matchParam.start(),matchParam.end()).toLowerCase());
+						setters.get(line.substring(matchParam.start(),matchParam.end()).toLowerCase()).invoke(obj, line.substring(matchParam.end()+1)); // находит поле и заполняет его значением (выполняет метод заполнения данного поля значением) 
 					}
 				} else {
 					checkSection = false;
@@ -75,14 +74,13 @@ public class CBFIni {
         }
 
 	private static Map<String, MethodHandle> getSetters(Class<?> type) throws Exception {
-		Map<String, MethodHandle> setters = new HashMap<>(); // таблица с набором "имя поля" - "поле объекта"?
+		Map<String, MethodHandle> setters = new HashMap<>(); // таблица с набором "имя поля" - "метод заполнения значения поля"?
 		while (type != null) {
 			for (Field field : type.getDeclaredFields()) {
 				field.setAccessible(true);
 				setters.put(field.getName(), MethodHandles
 									.lookup()
-									.unreflectSetter(field)); // заполнение таблицы набором значений?
-				log.debug("field.getName() = " + field.getName());
+									.unreflectSetter(field)); // заполнение таблицы
 			}
 			type = type.getSuperclass();
 		}
@@ -91,7 +89,6 @@ public class CBFIni {
 	}
 
 	public class SectionFields {
-		
 		String backup, description, type, server, folder, days, weeks, monthes, years, masterDay;
 	}
 
