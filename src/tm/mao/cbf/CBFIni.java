@@ -30,7 +30,7 @@ public class CBFIni {
 //	Pattern patternValue = Pattern.compile("[A-Za-z_0-9.\\/]+$");
 	Matcher matchParam, matchValue;
 	Map<String, MethodHandle> setters;
-	SectionFields obj;
+	public SectionFields obj;
         private static Logger log = Logger.getLogger(CBFIni.class.getName());
 
         public CBFIni() {
@@ -55,7 +55,7 @@ public class CBFIni {
 					if (matchParam.lookingAt()) {
 						setters = getSetters(SectionFields.class); //
 //						obj = new SectionFields();
-						setters.get(line.substring(matchParam.start(),matchParam.end()).toLowerCase()).invoke(obj, line.substring(matchParam.end()+1));
+						setters.get(line.substring(matchParam.start(),matchParam.end()).toLowerCase()).invoke(obj, line.substring(matchParam.end()+1)); // находит поле и заполняет его значением 
 						log.debug("Вырезание из line = " + line.substring(matchParam.start(),matchParam.end()).toLowerCase());
 					}
 				} else {
@@ -63,19 +63,25 @@ public class CBFIni {
 					i = -1;
 				}
 			}
+
+//			тестовый блок вывода всех значений списка
+			for(SectionFields sectionField: sectionData){
+				log.info(sectionField.backup);
+				log.info(sectionField.description);
+			}
 		} catch (Exception e) {
 		} catch (Throwable e) {
 		}
         }
 
 	private static Map<String, MethodHandle> getSetters(Class<?> type) throws Exception {
-		Map<String, MethodHandle> setters = new HashMap<>();
+		Map<String, MethodHandle> setters = new HashMap<>(); // таблица с набором "имя поля" - "поле объекта"?
 		while (type != null) {
 			for (Field field : type.getDeclaredFields()) {
 				field.setAccessible(true);
 				setters.put(field.getName(), MethodHandles
 									.lookup()
-									.unreflectSetter(field));
+									.unreflectSetter(field)); // заполнение таблицы набором значений?
 				log.debug("field.getName() = " + field.getName());
 			}
 			type = type.getSuperclass();
