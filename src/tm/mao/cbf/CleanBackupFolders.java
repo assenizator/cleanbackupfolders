@@ -46,12 +46,11 @@ public class CleanBackupFolders {
 					}
 				}
 			}
-		} catch (NumberFormatException e) {
-                        log.error("Формат файла < backup.conf >, возможно, не соответствует ожидаемому!");
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
+		} catch ( NumberFormatException e ) {
+                        log.error("Формат файла < backups.conf >, возможно, не соответствует ожидаемому!");
+		} catch ( SmbException e ) {
+                        log.error("Проблема при подключении через SMB, проверьте настройки в файлах < settings.conf > и < backups.cong> и доступность сети!");
+		} catch (Exception e ) {
 			e.printStackTrace();
 		}
 	}

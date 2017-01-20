@@ -6,9 +6,11 @@
 package tm.mao.cbf;
 import java.io.*;
 import java.util.Properties;
+import org.apache.log4j.*;
  
 public class Settings {
 
+        private static Logger log = Logger.getLogger(Settings.class.getName());
 	String smbServer, smbShare, smbShareSubDir;
 	String domain, user, pass;
 
@@ -29,8 +31,13 @@ public class Settings {
 			user = property.getProperty("user");
 			pass = property.getProperty("pass");
 
+		} catch (FileNotFoundException e) {
+			log.error("ОШИБКА: Файл свойств отсутствует!");
+			e.printStackTrace();
 		} catch (IOException e) {
-			System.err.println("ОШИБКА: Файл свойств отсутствует!");
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }
