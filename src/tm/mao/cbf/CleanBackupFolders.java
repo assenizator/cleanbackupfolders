@@ -41,7 +41,7 @@ public class CleanBackupFolders {
 					if (currentTime - itemTime > diffTime) {
 //						log.info((char)27 + "[37;41m" + f.getName() + (char)27 + "[0m  <-- expired");
 						log.info(f.getName() + " <-- expired, deleted");
-//						f.delete(); // dangerous!
+						f.delete(); // dangerous!
 //						log.debug("...........................................");
 					}
 				}
