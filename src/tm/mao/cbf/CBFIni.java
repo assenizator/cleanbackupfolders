@@ -68,8 +68,16 @@ public class CBFIni {
 				log.debug(sectionField.masterday);
 				log.debug("------------------------");
 			}
+		} catch (NoSuchFileException e) {
+			log.error("Файл конфигурации бэкапов < backup.conf > не найден!");
+			e.printStackTrace();
+		} catch (NullPointerException e) {
+			log.error("Формат файла < backup.conf >, возможно, не соответствует ожидаемому!");
+			e.printStackTrace();
 		} catch (Exception e) {
+			e.printStackTrace();
 		} catch (Throwable e) {
+			e.printStackTrace();
 		}
         }
 
@@ -78,13 +86,10 @@ public class CBFIni {
 		while (type != null) {
 			for (Field field : type.getDeclaredFields()) {
 				field.setAccessible(true);
-				setters.put(field.getName(), MethodHandles
-									.lookup()
-									.unreflectSetter(field)); // заполнение таблицы
+				setters.put(field.getName(), MethodHandles.lookup().unreflectSetter(field)); // заполнение таблицы
 			}
 			type = type.getSuperclass();
 		}
-
 		return setters;
 	}
 
