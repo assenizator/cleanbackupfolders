@@ -54,6 +54,20 @@ public class CBFIni {
 					checkSection = false;
 				}
 			}
+//                      тестовый блок вывода всех значений списка
+                        for(SectionFields sectionField: sectionData){
+				log.debug(sectionField.backup);
+				log.debug(sectionField.description);
+				log.debug(sectionField.type);
+				log.debug(sectionField.server);
+				log.debug(sectionField.folder);
+				log.debug(sectionField.days);
+				log.debug(sectionField.weeks);
+				log.debug(sectionField.monthes);
+				log.debug(sectionField.years);
+				log.debug(sectionField.masterday);
+				log.debug("------------------------");
+			}
 		} catch (Exception e) {
 		} catch (Throwable e) {
 		}
