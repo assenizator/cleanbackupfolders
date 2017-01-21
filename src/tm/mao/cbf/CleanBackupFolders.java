@@ -25,7 +25,7 @@ public class CleanBackupFolders {
 			for(SectionFields sectionFields: iniBckObj.sectionData) { //перебор списка с данными для бэкапов
 //				log.info((char)27 + "[37;41m" + sectionFields[0] + (char)27 + "[0m"); // section header
 				log.info(String.format("%40s", "").replace(' ', '-'));
-				log.info(sectionFields.backup + " -- " + sectionFields.description + " (срок давности - " + sectionFields.days + " сут., путь - smb://" + sectionFields.server + "/" + sectionFields.folder); // section header
+				log.info((char)27 + "[93m" + sectionFields.backup + " -- " + sectionFields.description + " (срок давности - " + sectionFields.days + " сут., путь - smb://" + sectionFields.server + "/" + sectionFields.folder + (char)27 + "[0m"); // section header
 
 				smbFile = new SmbFile("smb://" + sectionFields.server + "/", sectionFields.folder + "/", auth);
 				diffTime = Long.parseLong(sectionFields.days) * 3600 * 24 * 1000;
@@ -47,9 +47,9 @@ public class CleanBackupFolders {
 				}
 			}
 		} catch ( NumberFormatException e ) {
-                        log.error("Формат файла < backups.conf >, возможно, не соответствует ожидаемому!");
+                        log.error((char)27 + "[93m" + "Формат файла < backups.conf >, возможно, не соответствует ожидаемому!" + (char)27 + "[0m");
 		} catch ( SmbException e ) {
-                        log.error("Проблема при подключении через SMB, проверьте настройки в файлах < settings.conf > и < backups.cong> и доступность сети!");
+                        log.error((char)27 + "[93m" + "Проблема при подключении через SMB, проверьте настройки в файлах < settings.conf > и < backups.cong> и доступность сети!" + (char)27 + "[0m");
 		} catch (Exception e ) {
 			e.printStackTrace();
 		}

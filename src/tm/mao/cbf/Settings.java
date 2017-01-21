@@ -32,7 +32,7 @@ public class Settings {
 			pass = property.getProperty("pass");
 
 		} catch (FileNotFoundException e) {
-			log.error("ОШИБКА: Файл свойств отсутствует!");
+			log.error((char)27 + "[93m" + "ОШИБКА: Файл свойств отсутствует!" + (char)27 + "[0m");
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();

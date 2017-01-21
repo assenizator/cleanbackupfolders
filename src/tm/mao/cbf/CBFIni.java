@@ -69,10 +69,10 @@ public class CBFIni {
 				log.debug("------------------------");
 			}
 		} catch (NoSuchFileException e) {
-			log.error("Файл конфигурации бэкапов < backup.conf > не найден!");
+			log.error((char)27 + "[93m" + "Файл конфигурации бэкапов < backup.conf > не найден!" + (char)27 + "[0m");
 			e.printStackTrace();
 		} catch (NullPointerException e) {
-			log.error("Формат файла < backup.conf >, возможно, не соответствует ожидаемому!");
+			log.error((char)27 + "[93m" + "Формат файла < backup.conf >, возможно, не соответствует ожидаемому!" + (char)27 + "[0m");
 			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
