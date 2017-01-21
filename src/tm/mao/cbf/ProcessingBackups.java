@@ -5,9 +5,17 @@ import java.util.*;
 import org.apache.log4j.*;
 import tm.mao.cbf.CBFIni.*;
 
-public class CleanBackupFolders {
+public class ProcessingBackups {
 
-	private static Logger log = Logger.getLogger(CleanBackupFolders.class.getName());
+	private static Logger log = Logger.getLogger(ProcessingBackups.class.getName());
+
+	public ProcessingBackups (NtlmPasswordAuthentication auth, CBFIni iniBckObj, ) {
+		try {
+			int t;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	public static void main(String[] args) {
 
