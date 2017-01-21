@@ -1,0 +1,46 @@
+/mnt/fbtemp
+
+/DB/hana/hana-edev/diff/2016-12-15
+/DB/hana/hana-edev/full/2016-12-18
+/DB/hana/hana-edev/log/
+/DB/hana/hana-edev/month/2016-10-02
+
+/DB/hana/hana-eqa/diff
+/DB/hana/hana-eqa/full
+/DB/hana/hana-eqa/log
+/DB/hana/hana-eqa/month
+
+/DB/hana/hana-erp/diff
+/DB/hana/hana-erp/full
+/DB/hana/hana-erp/log
+/DB/hana/hana-erp/month
+
+/DB/hana/hana-scm/diff
+/DB/hana/hana-scm/full
+/DB/hana/hana-scm/log
+/DB/hana/hana-scm/month
+
+/DB/hana/hana-sdev/diff
+/DB/hana/hana-sdev/full
+/DB/hana/hana-sdev/log
+/DB/hana/hana-sdev/month
+
+/DB/hana/hana-sqa/diff
+/DB/hana/hana-sqa/full
+/DB/hana/hana-sqa/log
+/DB/hana/hana-sqa/month
+
+/fbsrv002/npr/npr_backup_2016-08-01_2100
+/fbsrv002/stl/stl_backup_2016-08-01_1000
+/fbsrv004/otd/otd_backup_2016-11-18_1200
+
+/SAP/SAPCONTENTSRV/diff/SDB_diff_2016-12-04_10-00  <-- file
+/SAP/SAPCONTENTSRV/full/SDB_full_2016-12-08_00-30  <-- file
+/SAP/SAPCONTENTSRV/log/SDB_LOG.8207  <-- file
+
+<server> / <mounted_folder> / <stable_part> / <valuable_part>
+
+<valuable_part>
+npr_backup_YYYY-MM-DD_????  <-- template
+
+
