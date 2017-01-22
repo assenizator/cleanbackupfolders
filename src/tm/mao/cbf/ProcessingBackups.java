@@ -8,8 +8,10 @@ import tm.mao.cbf.CBFIni.*;
 public class ProcessingBackups {
 
 	private static Logger log = Logger.getLogger(ProcessingBackups.class.getName());
+	public ArrayList<String> essentialFiles = new ArrayList<String>();
 
-	public ProcessingBackups (NtlmPasswordAuthentication auth, CBFIni iniBckObj ) {
+	
+	public ProcessingBackups (NtlmPasswordAuthentication auth, CBFIni iniBckObj ) { // Передача данных авторизации и списка параметров бэкапов
 
 		try {
 			Date currentDate = new Date();
@@ -18,11 +20,32 @@ public class ProcessingBackups {
 			SmbFile smbFile;
 
 			for(SectionFields sectionFields: iniBckObj.sectionData) { //перебор списка с данными для бэкапов
+				smbFile = new SmbFile("smb://" + sectionFields.server + "/", sectionFields.folder + "/", auth); // список файлов
+
+				if (sectionFields.days.replaceAll(" ", "") != "") { // если задано число дней
+					diffTime = Long.parseLong(sectionFields.days) * 3600 * 24 * 1000;
+					for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
+						if (f.createTime() >= (currentTime - diffTime) ) { // если файл попадает в интервал дат количества файлов
+							essentialFiles.add(f.getName());
+						}
+					}
+				}
+				
+				if (sectionFields.weeks.replaceAll(" ", "") != "") { // если задано число недель
+					diffTime = Long.parseLong(sectionFields.days) * 3600 * 24 * 1000;
+					for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
+						if (f.createTime() >= (currentTime - diffTime) ) { // если файл попадает в интервал дат количества файлов
+							essentialFiles.add(f.getName());
+						}
+					}
+				}
+				
+
+
+
+				}
 				log.info(String.format("%40s", "").replace(' ', '-'));
 				log.info((char)27 + "[93m" + sectionFields.backup + " -- " + sectionFields.description + " (срок давности - " + sectionFields.days + " сут., путь - smb://" + sectionFields.server + "/" + sectionFields.folder + (char)27 + "[0m"); // section header
-
-				smbFile = new SmbFile("smb://" + sectionFields.server + "/", sectionFields.folder + "/", auth);
-				diffTime = Long.parseLong(sectionFields.days) * 3600 * 24 * 1000;
 
 				for ( SmbFile f : smbFile.listFiles() ) {
 
