@@ -9,26 +9,13 @@ public class ProcessingBackups {
 
 	private static Logger log = Logger.getLogger(ProcessingBackups.class.getName());
 
-	public ProcessingBackups (NtlmPasswordAuthentication auth, CBFIni iniBckObj, ) {
-		try {
-			int t;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	public static void main(String[] args) {
+	public ProcessingBackups (NtlmPasswordAuthentication auth, CBFIni iniBckObj ) {
 
 		try {
 			Date currentDate = new Date();
 			Long currentTime = currentDate.getTime();
 			Long itemTime, diffTime;
 			SmbFile smbFile;
-
-			Settings iniFileObj = new Settings(); // settings from settings.conf
-			CBFIni iniBckObj = new CBFIni(); // backup settings from backups.conf
-
-			NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(iniFileObj.domain, iniFileObj.user, iniFileObj.pass);
 
 			for(SectionFields sectionFields: iniBckObj.sectionData) { //перебор списка с данными для бэкапов
 				log.info(String.format("%40s", "").replace(' ', '-'));
