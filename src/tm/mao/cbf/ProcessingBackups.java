@@ -2,6 +2,7 @@ package tm.mao.cbf;
 import java.io.*;
 import jcifs.smb.*;
 import java.util.*;
+import java.text.SimpleDateFormat;
 import org.apache.log4j.*;
 import tm.mao.cbf.CBFIni.*;
 
@@ -14,9 +15,10 @@ public class ProcessingBackups {
 	public ProcessingBackups (NtlmPasswordAuthentication auth, CBFIni iniBckObj ) { // Передача данных авторизации и списка параметров бэкапов
 
 		try {
-			Date currentDate = new Date();
-			Long currentTime = currentDate.getTime();
-			Long itemTime, diffTime;
+			Calendar currentDate = new GregorianCalendar(); // текущая дата
+			Long currentDateInMs = currentDate.getTimeInMillis();
+			Long diffTime;
+			int currentDOW; // текущий день недели
 			SmbFile smbFile;
 
 			for(SectionFields sectionFields: iniBckObj.sectionData) { //перебор списка с данными для бэкапов
@@ -25,26 +27,35 @@ public class ProcessingBackups {
 				if (sectionFields.days.replaceAll(" ", "") != "") { // если задано число дней
 					diffTime = Long.parseLong(sectionFields.days) * 3600 * 24 * 1000;
 					for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
-						if (f.createTime() >= (currentTime - diffTime) ) { // если файл попадает в интервал дат количества файлов
+						if (f.createTime() >= (currentDateInMs - diffTime) ) { // если файл попадает в интервал дат количества файлов
 							essentialFiles.add(f.getName());
+							log.info(f.getName());
 						}
 					}
+					currentDate.add(Calendar.DAY_OF_MONTH, - (Integer.parseInt(sectionFields.days) + 1)); 
+					currentDateInMs = currentDate.getTimeInMillis();
 				}
-				
+
+				// теперь currentDate указывает на дату самого раннего дневного бэкапа + 1 день (если дневные заданы)
+				// начинаем искать вниз по дате ближайший опорный день, с которого начнем отсчитывать недельные бэкапы
+
+
 				if (sectionFields.weeks.replaceAll(" ", "") != "") { // если задано число недель
 					diffTime = Long.parseLong(sectionFields.days) * 3600 * 24 * 1000;
+					currentDOW = currentDate.get(Calendar.DAY_OF_WEEK); // какой на текущей дате день недели
+					if (currentDOW != sectionFields.masterday) { // если текущий день недели не опорный
+
+					}
 					for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
-						if (f.createTime() >= (currentTime - diffTime) ) { // если файл попадает в интервал дат количества файлов
+						if (f.createTime() >= (currentDateInMs - diffTime) ) { // если файл попадает в интервал дат количества файлов
 							essentialFiles.add(f.getName());
 						}
 					}
 				}
-				
+		
 
 
-
-				}
-				log.info(String.format("%40s", "").replace(' ', '-'));
+/*				log.info(String.format("%40s", "").replace(' ', '-'));
 				log.info((char)27 + "[93m" + sectionFields.backup + " -- " + sectionFields.description + " (срок давности - " + sectionFields.days + " сут., путь - smb://" + sectionFields.server + "/" + sectionFields.folder + (char)27 + "[0m"); // section header
 
 				for ( SmbFile f : smbFile.listFiles() ) {
@@ -54,7 +65,7 @@ public class ProcessingBackups {
 						log.info(f.getName() + " <-- expired, deleted");
 //						f.delete(); // dangerous!
 					}
-				}
+				}*/
 			}
 		} catch ( NumberFormatException e ) {
                         log.error((char)27 + "[93m" + "Формат файла < backups.conf >, возможно, не соответствует ожидаемому!" + (char)27 + "[0m");
