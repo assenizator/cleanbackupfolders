@@ -30,7 +30,6 @@ public class ProcessingBackups {
 					for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
 						if (f.createTime() >= (currentDateInMs - diffTime) ) { // если файл попадает в интервал дат количества файлов
 							essentialFiles.add(f.getName());
-							log.info(f.getName());
 						}
 					}
 					currentDate.add(Calendar.DAY_OF_MONTH, - (Integer.parseInt(sectionFields.days) + 1)); 
