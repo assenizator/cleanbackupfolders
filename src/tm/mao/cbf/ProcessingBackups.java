@@ -20,6 +20,9 @@ public class ProcessingBackups {
 			Long diffTime;
 			int currentDOW, masterDay; // текущий день недели
 			SmbFile smbFile;
+			log.info("First day of week is " + currentDate.getFirstDayOfWeek());
+			log.info("Today is " + currentDate.get(Calendar.DAY_OF_WEEK));
+			log.info("Fixed is " + getWeekDay(currentDate));
 
 			for(SectionFields sectionFields: iniBckObj.sectionData) { //перебор списка с данными для бэкапов
 				smbFile = new SmbFile("smb://" + sectionFields.server + "/", sectionFields.folder + "/", auth); // список файлов
@@ -30,6 +33,7 @@ public class ProcessingBackups {
 					for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
 						if (f.createTime() >= (currentDateInMs - diffTime) ) { // если файл попадает в интервал дат количества файлов
 							essentialFiles.add(f.getName());
+							log.info(f.getName());
 						}
 					}
 					currentDate.add(Calendar.DAY_OF_MONTH, - (Integer.parseInt(sectionFields.days) + 1)); 
@@ -38,13 +42,11 @@ public class ProcessingBackups {
 
 				// теперь currentDate указывает на дату самого раннего дневного бэкапа + 1 день (если дневные заданы)
 				// начинаем искать вниз по дате ближайший опорный день, с которого начнем отсчитывать недельные бэкапы
-
+				log.info("-------------------");
 				// Вычисление еженедельных копий
 				if (sectionFields.weeks.replaceAll(" ", "") != "") { // если задано число недель
-					diffTime = Long.parseLong(sectionFields.weeks) * 3600 * 24 * 1000;
-					currentDOW = currentDate.get(Calendar.DAY_OF_WEEK); // какой на текущей дате день недели
-					masterDay = Integer.parseInt(sectionFields.masterday);
-					currentDate.add(Calendar.DAY_OF_MONTH, masterDay - currentDOW);
+					currentDOW = currentDate.get(Calendar.DAY_OF_WEEK) - currentDate.getFirstDayOfWeek(); // какой на текущей дате день недели
+					masterDay = Integer.parseInt(sectionFields.masterday); // какой день недели опорный
 					if (currentDOW - masterDay >= 0) { // если день недели больше опорного или равен ему
 						currentDate.add(Calendar.DAY_OF_MONTH, masterDay - currentDOW);
 					} else {
@@ -54,18 +56,20 @@ public class ProcessingBackups {
 
 					for (int i = 0; i < Integer.parseInt(sectionFields.weeks); i++) { // Перебор всех недельных бэкапов
 						currentDate.add(Calendar.DAY_OF_MONTH, - i * 7); // Идем каждый раз на неделю назад, начиная с текущей
+						log.info("Недельный бэкап на " + currentDate.getTime());
 						currentDateInMs = currentDate.getTimeInMillis();
 						for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
 							if ((f.createTime() / (1000 * 3600 * 24)) == (currentDateInMs / (1000 * 3600 * 24))) {
 								essentialFiles.add(f.getName());
+								log.info(f.getName());
 							}
 						}
 					}
 				}
 
-	                        for(String s: essentialFiles) {
-					log.info(s);
-				}
+//	                        for(String s: essentialFiles) {
+//					log.info(s);
+//				}
 		
 
 /*				log.info(String.format("%40s", "").replace(' ', '-'));
@@ -87,5 +91,12 @@ public class ProcessingBackups {
 		} catch (Exception e ) {
 			e.printStackTrace();
 		}
+	}
+
+	public int getWeekDay(Calendar date) {
+		int day, offset;
+		offset = date.getFirstDayOfWeek();
+		day = date.get(Calendar.DAY_OF_WEEK);
+		return ((day - offset + 7) % 7 + 1);
 	}
 }
