@@ -33,7 +33,7 @@ public class ProcessingBackups {
 					for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
 						if (f.createTime() >= (currentDateInMs - diffTime) ) { // если файл попадает в интервал дат количества файлов
 							essentialFiles.add(f.getName());
-							log.info(f.getName());
+//							log.info(f.getName());
 						}
 					}
 					currentDate.add(Calendar.DAY_OF_MONTH, - (Integer.parseInt(sectionFields.days) + 1)); 
@@ -45,7 +45,8 @@ public class ProcessingBackups {
 				log.info("-------------------");
 				// Вычисление еженедельных копий
 				if (sectionFields.weeks.replaceAll(" ", "") != "") { // если задано число недель
-					currentDOW = currentDate.get(Calendar.DAY_OF_WEEK) - currentDate.getFirstDayOfWeek(); // какой на текущей дате день недели
+//					currentDOW = currentDate.get(Calendar.DAY_OF_WEEK) - currentDate.getFirstDayOfWeek(); // какой на текущей дате день недели
+					currentDOW = getWeekDay(currentDate); // какой на текущей дате день недели
 					masterDay = Integer.parseInt(sectionFields.masterday); // какой день недели опорный
 					if (currentDOW - masterDay >= 0) { // если день недели больше опорного или равен ему
 						currentDate.add(Calendar.DAY_OF_MONTH, masterDay - currentDOW);
@@ -55,21 +56,24 @@ public class ProcessingBackups {
 					currentDateInMs = currentDate.getTimeInMillis();
 
 					for (int i = 0; i < Integer.parseInt(sectionFields.weeks); i++) { // Перебор всех недельных бэкапов
-						currentDate.add(Calendar.DAY_OF_MONTH, - i * 7); // Идем каждый раз на неделю назад, начиная с текущей
-						log.info("Недельный бэкап на " + currentDate.getTime());
+						log.info("i = " + i);
+						log.info(currentDate.getTime());
+//						log.info("Недельный бэкап на " + currentDate.getTime());
 						currentDateInMs = currentDate.getTimeInMillis();
 						for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
 							if ((f.createTime() / (1000 * 3600 * 24)) == (currentDateInMs / (1000 * 3600 * 24))) {
 								essentialFiles.add(f.getName());
-								log.info(f.getName());
+//								log.info(f.getName());
 							}
 						}
+						currentDate.add(Calendar.DAY_OF_MONTH, -7); // Идем каждый раз на неделю назад, начиная с текущей
+						log.info(currentDate.getTime());
 					}
 				}
 
-//	                        for(String s: essentialFiles) {
-//					log.info(s);
-//				}
+	                        for(String s: essentialFiles) {
+					log.info(s);
+				}
 		
 
 /*				log.info(String.format("%40s", "").replace(' ', '-'));
