@@ -62,10 +62,11 @@ public class ProcessingBackups {
 						currentDate.add(Calendar.DAY_OF_MONTH, -7); // Идем каждый раз на неделю назад, начиная с текущей
 						log.info(currentDate.getTime());
 					}
+					log.info("Date = " + currentDate.getTime());
 				}
 
-				// Вычисление ежемесячных копий
-				if (sectionFields.weeks.replaceAll(" ", "") != "") { // если задано число недель
+/*				// Вычисление ежемесячных копий
+				if (sectionFields.monthes.replaceAll(" ", "") != "") { // если задано число месяцев
 					currentDOW = getWeekDay(currentDate); // какой на текущей дате день недели
 					masterDay = Integer.parseInt(sectionFields.masterday); // какой день недели опорный
 					if (currentDOW - masterDay >= 0) { // если день недели больше опорного или равен ему
@@ -87,7 +88,7 @@ public class ProcessingBackups {
 						currentDate.add(Calendar.DAY_OF_MONTH, -7); // Идем каждый раз на неделю назад, начиная с текущей
 						log.info(currentDate.getTime());
 					}
-				}
+				}*/
 
 	                        for(String s: essentialFiles) {
 					log.info(s);
