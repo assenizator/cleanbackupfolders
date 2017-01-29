@@ -65,6 +65,8 @@ public class ProcessingBackups {
 					log.info("Date = " + currentDate.getTime());
 				}
 
+				// Теперь, если пройдены еженедельные бэкапы, мы находимся в месяце, с которого надо начать месячные бэкапы
+
 /*				// Вычисление ежемесячных копий
 				if (sectionFields.monthes.replaceAll(" ", "") != "") { // если задано число месяцев
 					currentDOW = getWeekDay(currentDate); // какой на текущей дате день недели
