@@ -2,6 +2,7 @@ package tm.mao.cbf;
 import java.io.*;
 import jcifs.smb.*;
 import java.util.*;
+import java.time.*;
 import java.text.SimpleDateFormat;
 import org.apache.log4j.*;
 import tm.mao.cbf.CBFIni.*;
@@ -15,10 +16,10 @@ public class ProcessingBackups {
 	public ProcessingBackups (NtlmPasswordAuthentication auth, CBFIni iniBckObj ) { // Передача данных авторизации и списка параметров бэкапов
 
 		try {
-			Calendar currentDate = new GregorianCalendar(); // текущая дата
-			Long currentDateInMs = currentDate.getTimeInMillis();
-			Long diffTime;
-			int currentDOW, masterDay; // текущий день недели
+			LocalDate currentDate = LocalDate.now(ZoneId.of("Europe/Moscow")); // текущая дата
+			Long currentEpochDay = currentDate.toEpochDay(); // текущий Unix день
+			Long edgeDay;
+			int currentDOW, currentMonth, masterDay;
 			SmbFile smbFile;
 
 			for(SectionFields sectionFields: iniBckObj.sectionData) { //перебор списка с данными для бэкапов
@@ -26,21 +27,22 @@ public class ProcessingBackups {
 
 				// Вычисление ежедневных копий
 				if (sectionFields.days.replaceAll(" ", "") != "") { // если задано число дней
-					diffTime = Long.parseLong(sectionFields.days) * 3600 * 24 * 1000;
+					edgeDay = currentEpochDay - Long.parseLong(sectionFields.days);
 					for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
-						if (f.createTime() >= (currentDateInMs - diffTime) ) { // если файл попадает в интервал дат количества файлов
+						if ((f.createTime() / 86400000) >= edgeDay) { // если файл попадает в интервал дат количества файлов
 							essentialFiles.add(f.getName());
 						}
 					}
-					currentDate.add(Calendar.DAY_OF_MONTH, - (Integer.parseInt(sectionFields.days) + 1)); 
-					currentDateInMs = currentDate.getTimeInMillis();
+					currentDate = currentDate.minusDays(Integer.parseInt(sectionFields.days)); 
+					currentEpochDay = currentDate.toEpochDay();
+					System.out.println(currentDate);
 				}
 
 				// теперь currentDate указывает на дату самого раннего дневного бэкапа + 1 день (если дневные заданы)
 				// начинаем искать вниз по дате ближайший опорный день, с которого начнем отсчитывать недельные бэкапы
 
 				// Вычисление еженедельных копий
-				if (sectionFields.weeks.replaceAll(" ", "") != "") { // если задано число недель
+/*				if (sectionFields.weeks.replaceAll(" ", "") != "") { // если задано число недель
 					currentDOW = getWeekDay(currentDate); // какой на текущей дате день недели
 					masterDay = Integer.parseInt(sectionFields.masterday); // какой день недели опорный
 					if (currentDOW - masterDay >= 0) { // если день недели больше опорного или равен ему
@@ -66,10 +68,16 @@ public class ProcessingBackups {
 				}
 
 				// Теперь, если пройдены еженедельные бэкапы, мы находимся в месяце, с которого надо начать месячные бэкапы
+				// но сначала надо вернуться на неделю назад, т.к. если последний недельный бэкап приходился на начало месяца,
+				// нас передвинуло на предыдущий месяц, и тогда мы никогда не получим месячных бэкапов, т.к. все время будем
+				// удалять их
+				//
 
-/*				// Вычисление ежемесячных копий
+				// Вычисление ежемесячных копий
 				if (sectionFields.monthes.replaceAll(" ", "") != "") { // если задано число месяцев
-					currentDOW = getWeekDay(currentDate); // какой на текущей дате день недели
+					currentDate.add(Calendar.DAY_OF_MONTH, 7); // возвращаемся на неделю вперед (надо проверить, как алгоритм ведет себя, если недельные бэкапы (и дневные тоже) не предусмотрены)
+					currentMonth = getWeekDay(currentDate); // какой на текущей дате день недели
+
 					masterDay = Integer.parseInt(sectionFields.masterday); // какой день недели опорный
 					if (currentDOW - masterDay >= 0) { // если день недели больше опорного или равен ему
 						currentDate.add(Calendar.DAY_OF_MONTH, masterDay - currentDOW);
@@ -90,8 +98,8 @@ public class ProcessingBackups {
 						currentDate.add(Calendar.DAY_OF_MONTH, -7); // Идем каждый раз на неделю назад, начиная с текущей
 						log.info(currentDate.getTime());
 					}
-				}*/
-
+				}
+*/
 	                        for(String s: essentialFiles) {
 					log.info(s);
 				}
