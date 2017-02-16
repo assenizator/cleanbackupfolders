@@ -3,6 +3,8 @@ import java.io.*;
 import jcifs.smb.*;
 import java.util.*;
 import java.time.*;
+import static java.time.temporal.TemporalAdjusters.*;
+//import static java.time.temporal.TemporalAdjusters.nextOrSame;
 import java.text.SimpleDateFormat;
 import org.apache.log4j.*;
 import tm.mao.cbf.CBFIni.*;
@@ -35,71 +37,47 @@ public class ProcessingBackups {
 					}
 					currentDate = currentDate.minusDays(Integer.parseInt(sectionFields.days)); 
 					currentEpochDay = currentDate.toEpochDay();
-					System.out.println(currentDate);
 				}
 
-				// теперь currentDate указывает на дату самого раннего дневного бэкапа + 1 день (если дневные заданы)
+				// теперь currentDate указывает на дату самого раннего дневного бэкапа (если дневные заданы)
 				// начинаем искать вниз по дате ближайший опорный день, с которого начнем отсчитывать недельные бэкапы
 
 				// Вычисление еженедельных копий
-/*				if (sectionFields.weeks.replaceAll(" ", "") != "") { // если задано число недель
-					currentDOW = getWeekDay(currentDate); // какой на текущей дате день недели
-					masterDay = Integer.parseInt(sectionFields.masterday); // какой день недели опорный
-					if (currentDOW - masterDay >= 0) { // если день недели больше опорного или равен ему
-						currentDate.add(Calendar.DAY_OF_MONTH, masterDay - currentDOW);
-					} else {
-						currentDate.add(Calendar.DAY_OF_MONTH, masterDay - currentDOW - 7);
-					} // Теперь currentDate указывает на дату самого позднего недельного бэкапа
-					currentDateInMs = currentDate.getTimeInMillis();
-
+				if (sectionFields.weeks.replaceAll(" ", "") != "") { // если задано число недель
+					currentDate = currentDate.with(previousOrSame(DayOfWeek.of(Integer.parseInt(sectionFields.masterday)))); // Теперь currentDate указывает на дату самого позднего недельного бэкапа (это может быть и текущая дата)
 					for (int i = 0; i < Integer.parseInt(sectionFields.weeks); i++) { // Перебор всех недельных бэкапов
-						log.info("i = " + i);
-						log.info(currentDate.getTime());
-						currentDateInMs = currentDate.getTimeInMillis();
+						currentEpochDay = currentDate.toEpochDay();
 						for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
-							if ((f.createTime() / (1000 * 3600 * 24)) == (currentDateInMs / (1000 * 3600 * 24))) {
+							if ((f.createTime() / 86400000) == currentEpochDay) {
 								essentialFiles.add(f.getName());
 							}
 						}
-						currentDate.add(Calendar.DAY_OF_MONTH, -7); // Идем каждый раз на неделю назад, начиная с текущей
-						log.info(currentDate.getTime());
+						currentDate = currentDate.minusWeeks(1); // Идем каждый раз на неделю назад, начиная с текущей
 					}
-					log.info("Date = " + currentDate.getTime());
 				}
 
 				// Теперь, если пройдены еженедельные бэкапы, мы находимся в месяце, с которого надо начать месячные бэкапы
 				// но сначала надо вернуться на неделю назад, т.к. если последний недельный бэкап приходился на начало месяца,
 				// нас передвинуло на предыдущий месяц, и тогда мы никогда не получим месячных бэкапов, т.к. все время будем
 				// удалять их
-				//
 
 				// Вычисление ежемесячных копий
 				if (sectionFields.monthes.replaceAll(" ", "") != "") { // если задано число месяцев
-					currentDate.add(Calendar.DAY_OF_MONTH, 7); // возвращаемся на неделю вперед (надо проверить, как алгоритм ведет себя, если недельные бэкапы (и дневные тоже) не предусмотрены)
-					currentMonth = getWeekDay(currentDate); // какой на текущей дате день недели
+       					currentDate = currentDate.plusWeeks(1); // возвращаемся на неделю вперед (надо проверить, как алгоритм ведет себя, если недельные бэкапы (и дневные тоже) не предусмотрены)
+					currentDate = currentDate.with(firstInMonth(DayOfWeek.of(Integer.parseInt(sectionFields.masterday))));
 
-					masterDay = Integer.parseInt(sectionFields.masterday); // какой день недели опорный
-					if (currentDOW - masterDay >= 0) { // если день недели больше опорного или равен ему
-						currentDate.add(Calendar.DAY_OF_MONTH, masterDay - currentDOW);
-					} else {
-						currentDate.add(Calendar.DAY_OF_MONTH, masterDay - currentDOW - 7);
-					} // Теперь currentDate указывает на дату самого позднего недельного бэкапа
-					currentDateInMs = currentDate.getTimeInMillis();
-
-					for (int i = 0; i < Integer.parseInt(sectionFields.weeks); i++) { // Перебор всех недельных бэкапов
-						log.info("i = " + i);
-						log.info(currentDate.getTime());
-						currentDateInMs = currentDate.getTimeInMillis();
+					for (int i = 0; i < Integer.parseInt(sectionFields.monthes); i++) { // Перебор всех недельных бэкапов
+						currentEpochDay = currentDate.toEpochDay();
 						for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
-							if ((f.createTime() / (1000 * 3600 * 24)) == (currentDateInMs / (1000 * 3600 * 24))) {
+							if ((f.createTime() / 86400000) == currentEpochDay) {
 								essentialFiles.add(f.getName());
 							}
 						}
-						currentDate.add(Calendar.DAY_OF_MONTH, -7); // Идем каждый раз на неделю назад, начиная с текущей
-						log.info(currentDate.getTime());
+						currentDate = currentDate.minusMonths(1); // Идем каждый раз на месяц назад, начиная с текущего
+						currentDate = currentDate.with(firstInMonth(DayOfWeek.of(Integer.parseInt(sectionFields.masterday))));
 					}
 				}
-*/
+
 	                        for(String s: essentialFiles) {
 					log.info(s);
 				}
