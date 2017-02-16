@@ -64,7 +64,7 @@ public class ProcessingBackups {
 				// Вычисление ежемесячных копий
 				if (sectionFields.monthes.replaceAll(" ", "") != "") { // если задано число месяцев
        					currentDate = currentDate.plusWeeks(1); // возвращаемся на неделю вперед (надо проверить, как алгоритм ведет себя, если недельные бэкапы (и дневные тоже) не предусмотрены)
-					currentDate = currentDate.with(firstInMonth(DayOfWeek.of(Integer.parseInt(sectionFields.masterday))));
+					currentDate = currentDate.with(firstInMonth(DayOfWeek.of(Integer.parseInt(sectionFields.masterday)))); // определяем, на какую дату месяца приходится первый опорный день недели
 
 					for (int i = 0; i < Integer.parseInt(sectionFields.monthes); i++) { // Перебор всех недельных бэкапов
 						currentEpochDay = currentDate.toEpochDay();
@@ -74,9 +74,29 @@ public class ProcessingBackups {
 							}
 						}
 						currentDate = currentDate.minusMonths(1); // Идем каждый раз на месяц назад, начиная с текущего
-						currentDate = currentDate.with(firstInMonth(DayOfWeek.of(Integer.parseInt(sectionFields.masterday))));
+						currentDate = currentDate.with(firstInMonth(DayOfWeek.of(Integer.parseInt(sectionFields.masterday)))); // в новом месяце снова вычисляем дату первого опорного дня
 					}
 				}
+
+				// Вычисление ежегодных копий
+/*				if (sectionFields.monthes.replaceAll(" ", "") != "") { // если задано число месяцев
+       					currentDate = currentDate.plusMonths(1); // возвращаемся на месяц вперед (надо проверить, как алгоритм ведет себя, если недельные бэкапы (и дневные тоже) не предусмотрены)
+					currentDate = currentDate.with(firstInMonth(DayOfWeek.of(Integer.parseInt(sectionFields.masterday)))); // определяем, на какую дату месяца приходится первый опорный день недели
+
+					for (int i = 0; i < Integer.parseInt(sectionFields.monthes); i++) { // Перебор всех недельных бэкапов
+						currentEpochDay = currentDate.toEpochDay();
+						for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
+							if ((f.createTime() / 86400000) == currentEpochDay) {
+								essentialFiles.add(f.getName());
+							}
+						}
+						currentDate = currentDate.minusMonths(1); // Идем каждый раз на месяц назад, начиная с текущего
+						currentDate = currentDate.with(firstInMonth(DayOfWeek.of(Integer.parseInt(sectionFields.masterday)))); // в новом месяце снова вычисляем дату первого опорного дня
+					}
+				}
+*/
+				log.info(currentDate);
+
 
 	                        for(String s: essentialFiles) {
 					log.info(s);
@@ -102,12 +122,5 @@ public class ProcessingBackups {
 		} catch (Exception e ) {
 			e.printStackTrace();
 		}
-	}
-
-	public int getWeekDay(Calendar date) {
-		int day, offset;
-		offset = date.getFirstDayOfWeek();
-		day = date.get(Calendar.DAY_OF_WEEK);
-		return ((day - offset + 7) % 7 + 1);
 	}
 }
