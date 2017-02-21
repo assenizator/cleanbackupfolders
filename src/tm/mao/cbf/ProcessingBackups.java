@@ -11,7 +11,7 @@ import tm.mao.cbf.CBFIni.*;
 public class ProcessingBackups {
 
 	private static Logger log = Logger.getLogger(ProcessingBackups.class.getName());
-	public ArrayList<String> essentialFiles = new ArrayList<String>();
+	private ArrayList<String> essentialFiles;
 
 	
 	public ProcessingBackups (NtlmPasswordAuthentication auth, CBFIni iniBckObj ) { // Передача данных авторизации и списка параметров бэкапов
@@ -25,6 +25,7 @@ public class ProcessingBackups {
 
 			for(SectionFields sectionFields: iniBckObj.sectionData) { //перебор списка с данными для бэкапов
 				smbFile = new SmbFile("smb://" + sectionFields.server + "/", sectionFields.folder + "/", auth); // список файлов
+				essentialFiles = new ArrayList<String>();
 
 				currentDate = LocalDate.now(ZoneId.of("Europe/Moscow")); // текущая дата
 				currentEpochDay = currentDate.toEpochDay(); // текущий Unix день
@@ -101,13 +102,22 @@ public class ProcessingBackups {
 						currentDate = currentDate.with(firstInMonth(DayOfWeek.of(Integer.parseInt(sectionFields.masterday)))); // в новом месяце снова вычисляем дату первого опорного дня
 					}
 				}
+
+				// Перебор списка файлов и удаление тех, что не в списке сохраняемых
+				for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
+					for (String s: essentialFiles) {
+					}
+				}
+
+				essentialFiles = null;
+
 			}
 
-			log.info("------------------------------");
+/*			log.info("------------------------------");
 
 			for(String s: essentialFiles) {
 				log.info(s);
-			}
+			}*/
 
 /*			log.info(String.format("%40s", "").replace(' ', '-'));
 			log.info((char)27 + "[93m" + sectionFields.backup + " -- " + sectionFields.description + " (срок давности - " + sectionFields.days + " сут., путь - smb://" + sectionFields.server + "/" + sectionFields.folder + (char)27 + "[0m"); // section header
