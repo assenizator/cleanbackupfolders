@@ -22,6 +22,7 @@ public class ProcessingBackups {
 			Long edgeDay; // крайний день ежедневных бэкапов
 			int currentDOW, currentMonth, masterDay;
 			SmbFile smbFile;
+			boolean markSafe;
 
 			for(SectionFields sectionFields: iniBckObj.sectionData) { //перебор списка с данными для бэкапов
 				smbFile = new SmbFile("smb://" + sectionFields.server + "/", sectionFields.folder + "/", auth); // список файлов
@@ -36,7 +37,7 @@ public class ProcessingBackups {
 					for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
 						if ((f.createTime() / 86400000) >= edgeDay) { // если файл попадает в интервал дат количества файлов
 							essentialFiles.add(f.getName());
-							log.info("daily -> " + f.getName());
+							// log.info("daily -> " + f.getName());
 						}
 					}
 					currentDate = currentDate.minusDays(Integer.parseInt(sectionFields.days)); 
@@ -54,7 +55,7 @@ public class ProcessingBackups {
 						for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
 							if ((f.createTime() / 86400000) == currentEpochDay) {
 								essentialFiles.add(f.getName());
-								log.info("weekly -> " + f.getName());
+								// log.info("weekly -> " + f.getName());
 							}
 						}
 						currentDate = currentDate.minusWeeks(1); // Идем каждый раз на неделю назад, начиная с текущей
@@ -76,7 +77,7 @@ public class ProcessingBackups {
 						for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
 							if ((f.createTime() / 86400000) == currentEpochDay) {
 								essentialFiles.add(f.getName());
-								log.info("monthly -> " + f.getName());
+								// log.info("monthly -> " + f.getName());
 							}
 						}
 						currentDate = currentDate.minusMonths(1); // Идем каждый раз на месяц назад, начиная с текущего
@@ -95,7 +96,7 @@ public class ProcessingBackups {
 						for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
 							if ((f.createTime() / 86400000) == currentEpochDay) {
 								essentialFiles.add(f.getName());
-								log.info("every year -> " + f.getName());
+								// log.info("every year -> " + f.getName());
 							}
 						}
 						currentDate = currentDate.minusYears(1); // Идем каждый раз на год назад, начиная с текущего
@@ -104,32 +105,23 @@ public class ProcessingBackups {
 				}
 
 				// Перебор списка файлов и удаление тех, что не в списке сохраняемых
+
+				log.info(String.format("%40s", "").replace(' ', '-'));
+				log.info((char)27 + "[93m" + sectionFields.backup + " -- " + sectionFields.description + " - smb://" + sectionFields.server + "/" + sectionFields.folder + (char)27 + "[0m"); // section header
+//				log.info((char)27 + "[93m" + sectionFields.backup + " -- " + sectionFields.description + " (срок давности - " + sectionFields.days + " сут., путь - smb://" + sectionFields.server + "/" + sectionFields.folder + (char)27 + "[0m"); // section header
+
 				for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
-					for (String s: essentialFiles) {
+					markSafe=false;
+					for (String s: essentialFiles) { if (s.equals(f.getName())) { markSafe=true; } }
+					if (!markSafe) {
+						log.debug(f.getName() + " удалён");
+						// f.delete();
+					} else {
+						log.info(f.getName() + " сохранён");
 					}
 				}
-
-				essentialFiles = null;
-
 			}
 
-/*			log.info("------------------------------");
-
-			for(String s: essentialFiles) {
-				log.info(s);
-			}*/
-
-/*			log.info(String.format("%40s", "").replace(' ', '-'));
-			log.info((char)27 + "[93m" + sectionFields.backup + " -- " + sectionFields.description + " (срок давности - " + sectionFields.days + " сут., путь - smb://" + sectionFields.server + "/" + sectionFields.folder + (char)27 + "[0m"); // section header
-
-			for ( SmbFile f : smbFile.listFiles() ) {
-
-				itemTime = f.createTime();
-				if (currentTime - itemTime > diffTime) {
-					log.info(f.getName() + " <-- expired, deleted");
-//					f.delete(); // dangerous!
-				}
-			}*/
 		} catch ( NumberFormatException e ) {
                         log.error((char)27 + "[93m" + "Формат файла < backups.conf >, возможно, не соответствует ожидаемому!" + (char)27 + "[0m");
 		} catch ( SmbException e ) {
