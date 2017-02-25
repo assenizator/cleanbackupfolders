@@ -48,7 +48,7 @@ public class ProcessingBackups {
 				// начинаем искать вниз по дате ближайший опорный день, с которого начнем отсчитывать недельные бэкапы
 
 				// Вычисление еженедельных копий
-				if (sectionFields.weeks.replaceAll(" ", "") != "") { // если задано число недель
+				if (sectionFields.weeks != null && sectionFields.weeks.replaceAll(" ", "") != "") { // если задано число недель
 					currentDate = currentDate.with(previousOrSame(DayOfWeek.of(Integer.parseInt(sectionFields.masterday)))); // Теперь currentDate указывает на дату самого позднего недельного бэкапа (это может быть и текущая дата)
 					for (int i = 0; i < Integer.parseInt(sectionFields.weeks); i++) { // Перебор всех недельных бэкапов
 						currentEpochDay = currentDate.toEpochDay();
@@ -68,7 +68,7 @@ public class ProcessingBackups {
 				// удалять их
 
 				// Вычисление ежемесячных копий
-				if (sectionFields.monthes.replaceAll(" ", "") != "") { // если задано число месяцев
+				if (sectionFields.monthes != null && sectionFields.monthes.replaceAll(" ", "") != "") { // если задано число месяцев
        					currentDate = currentDate.plusWeeks(1); // возвращаемся на неделю вперед (надо проверить, как алгоритм ведет себя, если недельные бэкапы (и дневные тоже) не предусмотрены)
 					currentDate = currentDate.with(firstInMonth(DayOfWeek.of(Integer.parseInt(sectionFields.masterday)))); // определяем, на какую дату месяца приходится первый опорный день недели
 
@@ -86,7 +86,7 @@ public class ProcessingBackups {
 				}
 
 				// Вычисление ежегодных копий
-				if (sectionFields.monthes.replaceAll(" ", "") != "") { // если задано число месяцев
+				if (sectionFields.years != null && sectionFields.years.replaceAll(" ", "") != "") { // если задано число месяцев
        					currentDate = currentDate.plusMonths(1); // возвращаемся на месяц вперед (надо проверить, как алгоритм ведет себя, если недельные бэкапы (и дневные тоже) не предусмотрены)
 					currentDate = currentDate.with(firstDayOfYear()); // переходим в 1-й месяц года (на первое число года)
 					currentDate = currentDate.with(firstInMonth(DayOfWeek.of(Integer.parseInt(sectionFields.masterday)))); // определяем, на какую дату месяца приходится первый опорный день н
