@@ -37,7 +37,6 @@ public class ProcessingBackups {
 					for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
 						if ((f.createTime() / 86400000) >= edgeDay) { // если файл попадает в интервал дат количества файлов
 							essentialFiles.add(f.getName());
-							// log.info("daily -> " + f.getName());
 						}
 					}
 					currentDate = currentDate.minusDays(Integer.parseInt(sectionFields.days)); 
@@ -55,7 +54,6 @@ public class ProcessingBackups {
 						for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
 							if ((f.createTime() / 86400000) == currentEpochDay) {
 								essentialFiles.add(f.getName());
-								// log.info("weekly -> " + f.getName());
 							}
 						}
 						currentDate = currentDate.minusWeeks(1); // Идем каждый раз на неделю назад, начиная с текущей
@@ -77,7 +75,6 @@ public class ProcessingBackups {
 						for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
 							if ((f.createTime() / 86400000) == currentEpochDay) {
 								essentialFiles.add(f.getName());
-								// log.info("monthly -> " + f.getName());
 							}
 						}
 						currentDate = currentDate.minusMonths(1); // Идем каждый раз на месяц назад, начиная с текущего
@@ -96,7 +93,6 @@ public class ProcessingBackups {
 						for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
 							if ((f.createTime() / 86400000) == currentEpochDay) {
 								essentialFiles.add(f.getName());
-								// log.info("every year -> " + f.getName());
 							}
 						}
 						currentDate = currentDate.minusYears(1); // Идем каждый раз на год назад, начиная с текущего
@@ -112,10 +108,10 @@ public class ProcessingBackups {
 
 				for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
 					markSafe=false;
-					for (String s: essentialFiles) { if (s.equals(f.getName())) { markSafe=true; } }
+					for (String s: essentialFiles) { if (s.equals(f.getName())) { markSafe=true; } } // маркер нахождения соответствия
 					if (!markSafe) {
 						log.debug(f.getName() + " удалён");
-						// f.delete();
+						f.delete();
 					} else {
 						log.info(f.getName() + " сохранён");
 					}
