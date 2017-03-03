@@ -103,7 +103,14 @@ public class ProcessingBackups {
 				// Перебор списка файлов и удаление тех, что не в списке сохраняемых
 
 				log.info(String.format("%40s", "").replace(' ', '-'));
-				log.info((char)27 + "[93m" + sectionFields.backup + " -- " + sectionFields.description + " - smb://" + sectionFields.server + "/" + sectionFields.folder + (char)27 + "[0m"); // section header
+				log.info((char)27 + "[93m" + sectionFields.backup + " -- " + sectionFields.description + (char)27 + "[0m"); // section header
+				log.info((char)27 + "[93m" + "Путь к бэкапу - smb://" + sectionFields.server + "/" + sectionFields.folder + (char)27 + "[0m"); // section header
+				log.info((char)27 + "[93m" + "Политика бэкапа - " +
+					sectionFields.days + " дней" +
+					(sectionFields.weeks != null ? ", " + sectionFields.weeks + " недель" : "") +
+					(sectionFields.monthes != null ? ", " + sectionFields.monthes + " месяцев" : "") +
+					(sectionFields.years != null ? ", " + sectionFields.years + " лет" : "") +
+					(char)27 + "[0m");
 //				log.info((char)27 + "[93m" + sectionFields.backup + " -- " + sectionFields.description + " (срок давности - " + sectionFields.days + " сут., путь - smb://" + sectionFields.server + "/" + sectionFields.folder + (char)27 + "[0m"); // section header
 
 				for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
