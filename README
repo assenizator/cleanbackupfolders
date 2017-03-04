@@ -1,14 +1,1 @@
-cd bin
-java -cp .:/usr/share/java/jcifs.jar:/usr/share/java/log4j-1.2.jar tm.mao.cbf.CleanBackupFolders
-vim manifest.txt 
-javac -cp /usr/share/java/jcifs.jar:/usr/share/java/log4j-1.2.jar ../src/tm/mao/cbf/CleanBackupFolders.java ../src/tm/mao/cbf/Settings.java ../src/tm/mao/cbf/CBFIni.java
-jar cfm CleanBackupFolders.jar manifest.txt tm/*
-java -jar CleanBackupFolders.jar
-
-
-Шаблон 30 05 5 3 - дневные, недельные, месячные и годовые бэкапы
-
-Общий алгоритм - Собрать список из дней, когда оставлять бэкапы, далее проходить по всем файлам и удалять неподходящие бэкапы. Также проверять размеры бэкапов (могут быть пустыми).
-
-Сначала отсчитать дневные бэкапы, потом от самой ранней даты дневных (и опорного дня недели) - недельные, потом аналогично остальные.
-
+CleanBackupFolders
