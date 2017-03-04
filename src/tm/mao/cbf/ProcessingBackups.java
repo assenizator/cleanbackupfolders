@@ -12,6 +12,7 @@ public class ProcessingBackups {
 
 	private static Logger log = Logger.getLogger(ProcessingBackups.class.getName());
 	private ArrayList<String> essentialFiles;
+	private String[] nameDayOfWeek = {"понедельник","вторник","среда","четверг","пятница","суббота","воскресенье"};
 
 	
 	public ProcessingBackups (NtlmPasswordAuthentication auth, CBFIni iniBckObj ) { // Передача данных авторизации и списка параметров бэкапов
@@ -106,10 +107,11 @@ public class ProcessingBackups {
 				log.info((char)27 + "[93m" + sectionFields.backup + " -- " + sectionFields.description + (char)27 + "[0m"); // section header
 				log.info((char)27 + "[93m" + "Путь к бэкапу - smb://" + sectionFields.server + "/" + sectionFields.folder + (char)27 + "[0m"); // section header
 				log.info((char)27 + "[93m" + "Политика бэкапа - " +
-					sectionFields.days + " дней" +
-					(sectionFields.weeks != null ? ", " + sectionFields.weeks + " недель" : "") +
-					(sectionFields.monthes != null ? ", " + sectionFields.monthes + " месяцев" : "") +
-					(sectionFields.years != null ? ", " + sectionFields.years + " лет" : "") +
+					(sectionFields.masterday != null ? nameDayOfWeek[Integer.parseInt(sectionFields.masterday)-1] + ", " : "") +
+					sectionFields.days + " ежедневных" +
+					(sectionFields.weeks != null ? ", " + sectionFields.weeks + " еженедельных" : "") +
+					(sectionFields.monthes != null ? ", " + sectionFields.monthes + " ежемесячных" : "") +
+					(sectionFields.years != null ? ", " + sectionFields.years + " ежегодных" : "") +
 					(char)27 + "[0m");
 //				log.info((char)27 + "[93m" + sectionFields.backup + " -- " + sectionFields.description + " (срок давности - " + sectionFields.days + " сут., путь - smb://" + sectionFields.server + "/" + sectionFields.folder + (char)27 + "[0m"); // section header
 
