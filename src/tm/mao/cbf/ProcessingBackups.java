@@ -3,6 +3,7 @@ import java.io.*;
 import jcifs.smb.*;
 import java.util.*;
 import java.time.*;
+import java.net.*;
 import static java.time.temporal.TemporalAdjusters.*;
 import java.text.SimpleDateFormat;
 import org.apache.log4j.*;
@@ -12,6 +13,7 @@ public class ProcessingBackups {
 
 	private static Logger log = Logger.getLogger(ProcessingBackups.class.getName());
 	private ArrayList<String> essentialFiles;
+	private ArrayList<LocalDate> essentialDates;
 	private String[] nameDayOfWeek = {"понедельник","вторник","среда","четверг","пятница","суббота","воскресенье"};
 
 	
@@ -28,6 +30,7 @@ public class ProcessingBackups {
 			for(SectionFields sectionFields: iniBckObj.sectionData) { //перебор списка с данными для бэкапов
 				smbFile = new SmbFile("smb://" + sectionFields.server + "/", sectionFields.folder + "/", auth); // список файлов
 				essentialFiles = new ArrayList<String>();
+				essentialDates = new ArrayList<LocalDate>();
 
 				currentDate = LocalDate.now(ZoneId.of("Europe/Moscow")); // текущая дата
 				currentEpochDay = currentDate.toEpochDay(); // текущий Unix день
@@ -38,6 +41,7 @@ public class ProcessingBackups {
 					for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
 						if ((f.createTime() / 86400000) >= edgeDay) { // если файл попадает в интервал дат количества файлов
 							essentialFiles.add(f.getName());
+							essentialDates.add(currentDate);
 						}
 					}
 					currentDate = currentDate.minusDays(Integer.parseInt(sectionFields.days)); 
@@ -55,6 +59,7 @@ public class ProcessingBackups {
 						for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
 							if ((f.createTime() / 86400000) == currentEpochDay) {
 								essentialFiles.add(f.getName());
+								essentialDates.add(currentDate);
 							}
 						}
 						currentDate = currentDate.minusWeeks(1); // Идем каждый раз на неделю назад, начиная с текущей
@@ -69,17 +74,24 @@ public class ProcessingBackups {
 				// Вычисление ежемесячных копий
 				if (sectionFields.monthes != null && sectionFields.monthes.replaceAll(" ", "") != "") { // если задано число месяцев
        					currentDate = currentDate.plusWeeks(1); // возвращаемся на неделю вперед (надо проверить, как алгоритм ведет себя, если недельные бэкапы (и дневные тоже) не предусмотрены)
+
+					log.info("После возвращения на неделю вперед дата = " + currentDate);
+
 					currentDate = currentDate.with(firstInMonth(DayOfWeek.of(Integer.parseInt(sectionFields.masterday)))); // определяем, на какую дату месяца приходится первый опорный день недели
+
+					log.info("На " + currentDate + " приходится 1-й опорный день месяца");
 
 					for (int i = 0; i < Integer.parseInt(sectionFields.monthes); i++) { // Перебор всех недельных бэкапов
 						currentEpochDay = currentDate.toEpochDay();
 						for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
 							if ((f.createTime() / 86400000) == currentEpochDay) {
 								essentialFiles.add(f.getName());
+								essentialDates.add(currentDate);
 							}
 						}
 						currentDate = currentDate.minusMonths(1); // Идем каждый раз на месяц назад, начиная с текущего
 						currentDate = currentDate.with(firstInMonth(DayOfWeek.of(Integer.parseInt(sectionFields.masterday)))); // в новом месяце снова вычисляем дату первого опорного дня
+						log.info("На " + currentDate + " приходится 1-й опорный день месяца");
 					}
 				}
 
@@ -94,6 +106,7 @@ public class ProcessingBackups {
 						for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
 							if ((f.createTime() / 86400000) == currentEpochDay) {
 								essentialFiles.add(f.getName());
+								essentialDates.add(currentDate);
 							}
 						}
 						currentDate = currentDate.minusYears(1); // Идем каждый раз на год назад, начиная с текущего
@@ -115,9 +128,11 @@ public class ProcessingBackups {
 					(char)27 + "[0m");
 //				log.info((char)27 + "[93m" + sectionFields.backup + " -- " + sectionFields.description + " (срок давности - " + sectionFields.days + " сут., путь - smb://" + sectionFields.server + "/" + sectionFields.folder + (char)27 + "[0m"); // section header
 
+				Collections.sort(essentialDates);
+
 				for ( SmbFile f : smbFile.listFiles() ) { // перебираем список файлов
-					markSafe=false;
-					for (String s: essentialFiles) { if (s.equals(f.getName())) { markSafe=true; } } // маркер нахождения соответствия
+					markSafe=false; // маркер нахождения соответствия
+					for (String s: essentialFiles) { if (s.equals(f.getName())) { markSafe=true; } } // список файлов, которые должны сохраниться 
 					if (!markSafe) {
 						log.debug(f.getName() + " удалён");
 						f.delete();
@@ -125,13 +140,17 @@ public class ProcessingBackups {
 						log.info(f.getName() + " сохранён");
 					}
 				}
+				for (LocalDate s: essentialDates) { log.info(s); } // вывод сохраняемых дат
 			}
 
 		} catch ( NumberFormatException e ) {
                         log.error((char)27 + "[93m" + "Формат файла < backups.conf >, возможно, не соответствует ожидаемому!" + (char)27 + "[0m");
+		} catch ( MalformedURLException e ) {
+			log.error("Invalid URL - MalformedURLException");
 		} catch ( SmbException e ) {
-                        log.error((char)27 + "[93m" + "Проблема при подключении через SMB, проверьте настройки в файлах < settings.conf > и < backups.cong> и доступность сети!" + (char)27 + "[0m");
-		} catch (Exception e ) {
+			e.printStackTrace();
+                        //log.error((char)27 + "[93m" + "Проблема при подключении через SMB, проверьте настройки в файлах < settings.conf > и < backups.cong> и доступность сети!" + (char)27 + "[0m");
+		} catch ( Exception e ) {
 			e.printStackTrace();
 		}
 	}
