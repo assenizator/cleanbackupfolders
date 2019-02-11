@@ -4,13 +4,14 @@
 */
 
 package tm.mao.cbf;
+
 import java.io.*;
 import java.util.Properties;
 import org.apache.log4j.*;
- 
+
 public class Settings {
 
-        private static Logger log = Logger.getLogger(Settings.class.getName());
+	private static Logger log = Logger.getLogger(Settings.class.getName());
 	String smbServer, smbShare, smbShareSubDir;
 	String domain, user, pass;
 
@@ -23,7 +24,6 @@ public class Settings {
 			fis = new FileInputStream("settings.conf");
 			property.load(fis);
 
-
 			smbServer = property.getProperty("smbServer");
 			smbShare = property.getProperty("smbShare");
 			smbShareSubDir = property.getProperty("smbShareSubDir");
@@ -32,7 +32,7 @@ public class Settings {
 			pass = property.getProperty("pass");
 
 		} catch (FileNotFoundException e) {
-			log.error((char)27 + "[93m" + "ОШИБКА: Файл свойств отсутствует!" + (char)27 + "[0m");
+			log.error((char) 27 + "[93m" + "ОШИБКА: Файл свойств отсутствует!" + (char) 27 + "[0m");
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -42,3 +42,8 @@ public class Settings {
 	}
 }
 
+/*
+ * Переделать поиск авторизационных данных с общего поиска пары
+ * "свойство=значение" на поиск секции с необходимыми авторизационными данными и
+ * их выборку по типу обработки в CBFIni.java
+ */
