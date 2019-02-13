@@ -12,7 +12,7 @@ import org.apache.log4j.*;
 public class Settings {
 
 	private static Logger log = Logger.getLogger(Settings.class.getName());
-	String smbServer, smbShare, smbShareSubDir;
+	String smbServer, smbShare;
 	String domain, user, pass;
 
 	public Settings() {
@@ -21,12 +21,11 @@ public class Settings {
 		Properties property = new Properties();
 
 		try {
-			fis = new FileInputStream("settings.conf");
+			fis = new FileInputStream("access.conf");
 			property.load(fis);
 
 			smbServer = property.getProperty("smbServer");
 			smbShare = property.getProperty("smbShare");
-			smbShareSubDir = property.getProperty("smbShareSubDir");
 			domain = property.getProperty("domain");
 			user = property.getProperty("user");
 			pass = property.getProperty("pass");

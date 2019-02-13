@@ -36,6 +36,12 @@ public class ProcessingBackups {
 				 * данных о бэкапах) Из текущего класса изъять параметр iniBckObj
 				 */
 
+				Settings iniFileObj = new Settings(sectionFields.authserver); // settings from settings.conf
+				NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(iniFileObj.domain, iniFileObj.user,
+						iniFileObj.pass);
+
+				// выше новый код
+
 				smbFile = new SmbFile("smb://" + sectionFields.server + "/", sectionFields.folder + "/", auth); // список
 																												// файлов
 				essentialFiles = new ArrayList<String>();
