@@ -15,7 +15,24 @@
 		<Type>Share</Type>
 		<SmbServer>10.24.1.3</SmbServer>
 		<SmbShare>xenserver</SmbShare>
-		<Domain></Domain>
+		<User>admin</User>
+		<Password>bioNASserver001</Password>
+	</AuthServer>
+	<AuthServer id="BACKUPSRV">
+		<Description>Локальные бэкапы</Description>
+		<Type>Local</Type>
+	</AuthServer>
+	<AuthServer id="FTPCHEL1">
+		<Description>Бэкапы телефонии Челябинска</Description>
+		<Type>FTP</Type>
+		<FtpServer>10.24.1.3</FtpServer>
+		<User>admin</User>
+		<Password>bioNASserver001</Password>
+	</AuthServer>
+	<AuthServer id="NFSMAKH1">
+		<Description>Бэкапы SAP HANA</Description>
+		<Type>NFS</Type>
+		<NfsServer>tapebuf</NfsServer>
 		<User>admin</User>
 		<Password>bioNASserver001</Password>
 	</AuthServer>
